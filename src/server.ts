@@ -5,7 +5,11 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import * as MySQLConnector from './utils/mysql.connector';
 import authRoutes from './routes/authRoutes';
+import feedRoutes from './routes/feedRoutes';
 import { BaseResponse } from './models/BaseResponse';
+// import fileUpload from 'express-fileupload';
+const fileUpload = require("express-fileupload");
+
 
 const app: Express = express();
 
@@ -20,6 +24,8 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 /** Takes care of JSON data */
 app.use(express.json());
+/** Enable file upload */
+app.use(fileUpload());
 
 /** RULES OF OUR API */
 app.use((req, res, next) => {
@@ -35,12 +41,12 @@ app.use((req, res, next) => {
     next();
 });
 
-
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 /** Routes */
 app.use("/auth", authRoutes);
+app.use("/feed", feedRoutes);
 
 /** Error handling */
 app.use((req, res, next) => {
