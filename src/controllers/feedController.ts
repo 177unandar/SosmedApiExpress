@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { BaseResponse } from '../models/BaseResponse';
 import { verifyToken } from "../services/AuthService";
 import { cloudinaryUpload } from '../services/CloudinaryService';
-import { createNewFeed } from '../services/FeedService';
+import { createNewFeed, getFeedsPagination } from '../services/FeedService';
 import { isSingleFile } from '../utils/fileUtils';
 
 
@@ -26,5 +26,11 @@ const createFeed  =  async (req: Request, res: Response, next: NextFunction) => 
     });
 };
 
+const getFeeds  =  async (req: Request, res: Response, next: NextFunction) => {
+    console.log("req.query", req.query)
+    let page = req.query.page!! ? parseInt(`${req.query.page}`) : 1;
+    return res.status(200).json(new BaseResponse(await getFeedsPagination(page)));
+}
 
-export default {createFeed};
+
+export default {createFeed, getFeeds};

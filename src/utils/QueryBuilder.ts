@@ -1,3 +1,6 @@
+import { LIMIT_PER_PAGE } from "../config/vars.config";
+import { Pagination } from "../models/Pagination";
+import { TotalRow } from "../models/TotalRow";
 import { executeQuery } from "./mysql.connector";
 
 export class QueryBuilder {
@@ -5,6 +8,9 @@ export class QueryBuilder {
     columns: string[] = [];
     whereRaws: string[] = [];
     params: string[] = [];
+    orderByRaw: string | undefined;
+    limit: number | undefined;
+    offset: number | undefined;
 
     constructor(tableName: string) {
         this.tableName = tableName;
@@ -28,18 +34,37 @@ export class QueryBuilder {
         return this;
     }
 
-    async get<T>(): Promise<T[]> {
-        let select = this.columns.length ? this.columns.join(", ") : "*"
+    orderBy(...args: string[]) : QueryBuilder{
+        let type = "ASC";
+        if(args.length == 2) {
+            type = args[1];
+        }
+        this.orderByRaw = `${args[0]} ${type}`
+        return this;
+    }
+
+    async get<T>(select: string | undefined = undefined): Promise<T[]> {
+        if(select == undefined)
+            select = this.columns.length ? this.columns.join(", ") : "*"
         let query = `SELECT ${select} FROM ${this.tableName}`;
         if(this.whereRaws.length) {
             query += ` WHERE ${this.whereRaws.join(' AND')}`;
+        }
+        if(this.orderByRaw!!){
+            query += ` ORDER BY ${this.orderByRaw}`
+        }
+        if(this.limit) {
+            query += ` LIMIT ${this.limit}`
+            if(this.offset) {
+                query += ` OFFSET ${this.offset}`
+            }
         }
         console.log("query get", query)
         return await executeQuery<T[]>(query, this.params);
     }
 
-    async first<T>(): Promise<T | undefined> {
-        let datas: T[] = await this.get<T>();
+    async first<T>(select: string | undefined = undefined): Promise<T | undefined> {
+        let datas: T[] = await this.get<T>(select);
         if(datas!! && datas.length)
             return datas[0];
         return undefined;
@@ -58,6 +83,26 @@ export class QueryBuilder {
           );
         let query = `INSERT INTO ${this.tableName} (${columns.join(', ')}) VALUES (${values.join(', ')}) `;
         await executeQuery<any>(query, params);
+    }
+
+    async paginate<T>(page: number) {
+        let totalRow: TotalRow | undefined = await this.first<TotalRow>("COUNT(*) as total");
+        let totalRows = totalRow!! ? totalRow.total : 0;
+        let totalPages = 0
+        let prevPage: number | null = null;
+        let nextPage: number | null = null;
+        let data: T[] = []
+        if(totalRows > 0) {
+            this.limit = LIMIT_PER_PAGE;
+            totalPages = Math.ceil((totalRows / this.limit))
+            if(page > 1)
+                prevPage = page - 1;
+            if(page < totalPages)
+                nextPage = page + 1;
+            this.offset = ((page - 1) * this.limit)
+            data = await this.get<T>();
+        }
+        return new Pagination(totalRows, totalPages, page, prevPage, nextPage, data);
     }
 
 }
