@@ -16,7 +16,7 @@ const createFeed  =  async (req: Request, res: Response, next: NextFunction) => 
                 let image_url = await cloudinaryUpload(image);
                 if(image_url!!) {
                     await createNewFeed(username, image_url, req.body.caption);
-                    return res.status(200).json(new BaseResponse("ok"));
+                    return res.status(200).json(new BaseResponse("create a new feed has been successful"));
                 }
             }
         }

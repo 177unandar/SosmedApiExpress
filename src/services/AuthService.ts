@@ -1,5 +1,5 @@
 import { User } from "../models/User";
-import { execute, getFirst } from "../utils/mysql.connector";
+import { QueryBuilder } from "../utils/queryBuilder";
 let bcrypt = require('bcrypt');
 let jwt = require('jsonwebtoken');
 
@@ -10,13 +10,11 @@ export const createUser = async(username: string, fullname: string, password: st
         return "username tidak tersedia";
     let salt = bcrypt.genSaltSync(10);
     let encryptedPassword = bcrypt.hashSync(password, salt);
-    let data = [
-        username,
-        fullname,
-        encryptedPassword,
-    ]
-    let query = `INSERT INTO users (username, fullname, password) VALUES (?, ?, ?);`;
-     await execute<any>(query, data);
+    await new QueryBuilder("users").insert({
+        username: username,
+        fullname: fullname,
+        password: encryptedPassword,
+    });
      return await getUser(username);
 }
 
@@ -30,10 +28,8 @@ export const loginUser = async(username: string, password: string): Promise<User
     return;
 }
 
-export const getUser = async (username: String) : Promise<User | undefined> => {
-    let query = "Select * from users where username = ?";
-    // let user: User
-    return await getFirst<User>(query, [username]);
+export const getUser = async (username: string) : Promise<User | undefined> => {
+    return await new QueryBuilder("users").where('username', username).first<User>();
 };
 
 export const isUsernameExists = async(username: string) : Promise<boolean> => {

@@ -33,7 +33,7 @@ let pool: Pool;
  * @param {string[] | Object} params - provide the parameterized values used
  * in the query
  */
- export const execute = <T>(query: string, params: string[] | Object): Promise<T> => {
+ export const executeQuery = <T>(query: string, params: string[] | Object): Promise<T> => {
     try {
         if (!pool) throw new Error('Pool was not created. Ensure pool is created when running the app.');
 
@@ -51,16 +51,3 @@ let pool: Pool;
     }
 }
 
-/**
- *  get first result from DB
- * 
- * @param query 
- * @param params 
- * @returns 
- */
-export const getFirst = async <T>(query: string, params: string[] | Object): Promise<T | undefined> => {
-    let results: T[] = await execute<T[]>(query, params);
-    if (results.length) {
-        return results[0];
-    }
-}
