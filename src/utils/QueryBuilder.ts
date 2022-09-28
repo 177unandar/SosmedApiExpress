@@ -6,6 +6,7 @@ import { executeQuery } from "./mysql.connector";
 export class QueryBuilder {
     tableName: string;
     columns: string[] = [];
+    joinRaws: string[] = [];
     whereRaws: string[] = [];
     params: string[] = [];
     orderByRaw: string | undefined;
@@ -21,12 +22,25 @@ export class QueryBuilder {
         return this;
     }
 
+    join(...args: string[]) : QueryBuilder {
+        if(args.length == 3) {
+            this.joinRaws.push(`JOIN ${args[0]} ON ${args[1]} = ${args[2]}`)
+        } else if(args.length > 3) {
+            this.joinRaws.push(`${args[0]} JOIN ${args[1]} ON ${args[2]} = ${args[3]}`)
+        }
+        return this
+    }    
+
+    leftJoin(...args: string[]) : QueryBuilder {
+        return this.join('left', args[0], args[1], args[2])
+    }
+
     whereRaw(arg: string) : QueryBuilder{
         this.whereRaws.push(arg)
         return this;
     }
 
-    where(...args: string[]) : QueryBuilder{
+    where(...args: any[]) : QueryBuilder{
         if(args.length == 2) {
             this.whereRaws.push(`${args[0]} = ?`);
             this.params.push(args[1]);
@@ -47,6 +61,9 @@ export class QueryBuilder {
         if(select == undefined)
             select = this.columns.length ? this.columns.join(", ") : "*"
         let query = `SELECT ${select} FROM ${this.tableName}`;
+        if(this.joinRaws.length) {
+            query += ` ${this.joinRaws.join(' ')}`;
+        }
         if(this.whereRaws.length) {
             query += ` WHERE ${this.whereRaws.join(' AND')}`;
         }
@@ -59,7 +76,6 @@ export class QueryBuilder {
                 query += ` OFFSET ${this.offset}`
             }
         }
-        console.log("query get", query)
         return await executeQuery<T[]>(query, this.params);
     }
 

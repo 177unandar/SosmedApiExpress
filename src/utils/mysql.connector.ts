@@ -39,7 +39,6 @@ let pool: Pool;
 
         return new Promise<T>((resolve, reject) => {
             pool.query(query, params, (error, results) => {
-                console.log(query, results)
                 if (error) reject(error);
                 else resolve(results);
             });
