@@ -1,5 +1,4 @@
 import { Feed } from "../models/Feed";
-import { Pagination } from "../models/Pagination";
 import { QueryBuilder } from "../utils/queryBuilder";
 
 
@@ -11,11 +10,11 @@ export const createNewFeed = async (username: string, image_url: string, caption
     });
 }
 
-export const getFeedsPagination = async(page: number) =>  {
+export const getFeedsPagination = async (page: number) => {
     return await new QueryBuilder("feeds")
         .select([
-            'feeds.*', 
-            'users.fullname', 
+            'feeds.*',
+            'users.fullname',
             '(SELECT COUNT(*) FROM feed_comments WHERE feed_comments.feed_id = feeds.id) AS total_comments'
         ])
         .join('users', 'users.username', 'feeds.username')

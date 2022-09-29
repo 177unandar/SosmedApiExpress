@@ -1,19 +1,17 @@
 
 
-export class Pagination<T> {
+export class Pagination {
     totalRows: number;
     totalPages: number;
     currentPage: number;
     prevPage: number | null;
     nextPage: number | null;
-    rows: T[];
 
-    constructor(totalRows: number, totalPages: number, currentPage: number, prevPage: number | null, nextPage: number | null, rows: T[]) {
+    constructor(totalRows: number, totalPages: number, currentPage: number, prevPage: number | null, nextPage: number | null) {
         this.totalRows = totalRows;
         this.totalPages = totalPages;
         this.currentPage = currentPage;
         this.prevPage = prevPage;
         this.nextPage = nextPage;
-        this.rows = rows;
     }
 }
