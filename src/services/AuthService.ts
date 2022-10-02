@@ -33,7 +33,7 @@ export const getUser = async (username: string) : Promise<User | undefined> => {
 };
 
 export const isUsernameExists = async(username: string) : Promise<boolean> => {
-    let user: User|undefined = await getUser(username);
+    let user: User|undefined = await getUser(username.trim());
     return !!user;
 }
 

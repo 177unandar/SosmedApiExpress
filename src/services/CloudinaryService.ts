@@ -19,14 +19,19 @@ export const cloudinaryUpload = async(file: UploadedFile) : Promise<string | und
                 console.log('Error while copying file to target location '+filePath);
             }
         });
-        try {
-            const result = await cloudinary.uploader.upload(filePath);
-            console.log("result",result);
-            return result.url;
-        } catch (error) {
-            console.error(error);
-          }
+        return await uploadFile(filePath);
     }
     return;
+}
+
+const uploadFile = async(filePath: string) : Promise<string | undefined> => {
+    try {
+        const result = await cloudinary.uploader.upload(filePath);
+        console.log("result",result);
+        return result.url;
+    } catch (error) {
+        console.error('error upload', error);
+        return await uploadFile(filePath);
+    }
 }
 

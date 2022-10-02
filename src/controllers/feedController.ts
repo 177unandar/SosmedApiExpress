@@ -19,7 +19,8 @@ const createFeed  =  async (req: Request, res: Response, next: NextFunction) => 
                     return res.status(200).json(new BaseResponse("create a new feed has been successful"));
                 }
             }
-        }
+        } 
+        return res.status(400).json(new BaseResponse('').setErrorMessage('Create feed failed, please try again!'));
     } else
         return res.status(401).json(new BaseResponse('Unauthorize').setErrorMessage('invalid session'));
 };
