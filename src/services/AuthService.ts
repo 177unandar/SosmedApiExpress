@@ -11,7 +11,7 @@ export const createUser = async(username: string, fullname: string, password: st
     let salt = bcrypt.genSaltSync(10);
     let encryptedPassword = bcrypt.hashSync(password, salt);
     await new QueryBuilder("users").insert({
-        username: username,
+        username: username.toLowerCase(),
         fullname: fullname,
         password: encryptedPassword,
     });

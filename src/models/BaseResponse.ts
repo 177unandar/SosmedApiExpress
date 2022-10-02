@@ -1,5 +1,5 @@
 export class BaseResponse {
-    status: String = "success"
+    success: boolean = true
     message: String = "OK"
     data: any = null
 
@@ -10,9 +10,16 @@ export class BaseResponse {
             this.data = data
     }
 
-    setError(error: Error): void {
-        this.status = `failed`;
+    setError(error: Error): BaseResponse {
+        this.success = false;
         this.message = error.message;
+        return this;
+    }
+
+    setErrorMessage(errorMessage: string): BaseResponse {
+        this.success = false;
+        this.message = errorMessage;
+        return this;
     }
 
 }

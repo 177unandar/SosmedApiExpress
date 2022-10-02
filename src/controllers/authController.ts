@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { BaseResponse } from '../models/BaseResponse';
 import { User } from '../models/User';
-import { createUser, generateToken, loginUser, verifyToken } from '../services/AuthService';
+import { createUser, generateToken, isUsernameExists, loginUser, verifyToken } from '../services/AuthService';
 
 const register =  async (req: Request, res: Response, next: NextFunction) => {
     console.log("req", req.body)
@@ -14,13 +14,18 @@ const register =  async (req: Request, res: Response, next: NextFunction) => {
             message: response
         });
     if(!!response) {
-
         return res.status(200).json(new BaseResponse(await generateToken(response)));
     }
     return res.status(500).json({
         message: 'Internal server error'
     });
 
+};
+
+const checkUsername =  async (req: Request, res: Response, next: NextFunction) => {
+    console.log("req", req.body)
+    let username: string = req.body.username;
+    return res.status(200).json(new BaseResponse(!(await isUsernameExists(username))));
 };
 
 const login =  async (req: Request, res: Response, next: NextFunction) => {
@@ -32,14 +37,20 @@ const login =  async (req: Request, res: Response, next: NextFunction) => {
         let token = await generateToken(user);
         return res.status(200).json(new BaseResponse({
             token: token,
-            user: user
+            user: userResponse(user)
         }));
-    }
-    return res.status(401).json({
-        message: 'Invalid username or password'
-    });
 
+    }
+    return res.status(401).json(new BaseResponse(null).setErrorMessage('Invalid username or password'));
 };
+
+const userResponse = (user: User) => {
+    return {
+        username: user.username,
+        fullname: user.fullname,
+        created_at: user.created_at,
+    }
+}
 
 const verify =  async (req: Request, res: Response, next: NextFunction) => {
     let userId = verifyToken(req.headers.authorization+"");
@@ -51,4 +62,4 @@ const verify =  async (req: Request, res: Response, next: NextFunction) => {
 
 }
 
-export default {register, login, verify};
+export default {register, checkUsername, login, verify};
