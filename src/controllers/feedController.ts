@@ -7,7 +7,7 @@ import { isSingleFile } from '../utils/fileUtils';
 
 
 const createFeed  =  async (req: Request, res: Response, next: NextFunction) => {
-    let username: string | undefined = verifyToken(req.headers.authorization+"");
+    let username: string | undefined = await verifyToken(req.headers.authorization+"");
     if(username) {
         const files = req.files
         if(files!!) {
@@ -20,10 +20,8 @@ const createFeed  =  async (req: Request, res: Response, next: NextFunction) => 
                 }
             }
         }
-    }
-    return res.status(401).json({
-        message: 'Invalid session'
-    });
+    } else
+        return res.status(401).json(new BaseResponse('Unauthorize').setErrorMessage('invalid session'));
 };
 
 const getFeeds  =  async (req: Request, res: Response, next: NextFunction) => {

@@ -4,7 +4,8 @@
     "description": "Sosmed API",
     "main": "index.js",
     "scripts": {
-        "serve": "nodemon src/server.ts"
+        "serve": "nodemon src/server.ts",
+        "start": "ts-node-esm src/server.ts"
     },
     "keywords": [],
     "author": "Achmad Munandar",

@@ -43,9 +43,9 @@ export const generateToken = async (user: User) : Promise<string> => {
     }, SECRET_KEY);
 }
 
-export const verifyToken = (token: string) : string | undefined => {
+export const verifyToken = async (token: string) : Promise<string | undefined> => {
     try {
-        let decoded = jwt.verify(token, SECRET_KEY);
+        let decoded = await jwt.verify(token, SECRET_KEY);
         return decoded.username;
       } catch(err) {
         // err

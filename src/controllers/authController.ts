@@ -53,13 +53,10 @@ const userResponse = (user: User) => {
 }
 
 const verify =  async (req: Request, res: Response, next: NextFunction) => {
-    let userId = verifyToken(req.headers.authorization+"");
+    let userId = await verifyToken(req.headers.authorization+"");
     if(userId!!)
         return res.status(200).json(new BaseResponse(userId));
-    return res.status(401).json({
-        message: 'Invalid token'
-    });
-
+    return res.status(401).json(new BaseResponse('Unauthorize').setErrorMessage('invalid session'));
 }
 
 export default {register, checkUsername, login, verify};
