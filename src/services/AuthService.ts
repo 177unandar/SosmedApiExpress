@@ -1,12 +1,12 @@
 import { User } from "../models/User";
-import { QueryBuilder } from "../utils/queryBuilder";
+import { QueryBuilder } from "../utils/QueryBuilder";
 let bcrypt = require('bcrypt');
 let jwt = require('jsonwebtoken');
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
-export const createUser = async(username: string, fullname: string, password: string): Promise<string | User | undefined> => {
-    if(await isUsernameExists(username))
+export const createUser = async (username: string, fullname: string, password: string): Promise<string | User | undefined> => {
+    if (await isUsernameExists(username))
         return "username tidak tersedia";
     let salt = bcrypt.genSaltSync(10);
     let encryptedPassword = bcrypt.hashSync(password, salt);
@@ -15,40 +15,40 @@ export const createUser = async(username: string, fullname: string, password: st
         fullname: fullname,
         password: encryptedPassword,
     });
-     return await getUser(username);
+    return await getUser(username);
 }
 
-export const loginUser = async(username: string, password: string): Promise<User | undefined> => {
-    let user : User | undefined = await getUser(username);
-    if(user!!) {
-        if(bcrypt.compareSync(password, user.password)) {
+export const loginUser = async (username: string, password: string): Promise<User | undefined> => {
+    let user: User | undefined = await getUser(username);
+    if (user!!) {
+        if (bcrypt.compareSync(password, user.password)) {
             return user;
         }
     }
     return;
 }
 
-export const getUser = async (username: string) : Promise<User | undefined> => {
+export const getUser = async (username: string): Promise<User | undefined> => {
     return await new QueryBuilder("users").where('username', username).first<User>();
 };
 
-export const isUsernameExists = async(username: string) : Promise<boolean> => {
-    let user: User|undefined = await getUser(username.trim());
+export const isUsernameExists = async (username: string): Promise<boolean> => {
+    let user: User | undefined = await getUser(username.trim());
     return !!user;
 }
 
-export const generateToken = async (user: User) : Promise<string> => {
+export const generateToken = async (user: User): Promise<string> => {
     return await jwt.sign({
         username: user.username,
     }, SECRET_KEY);
 }
 
-export const verifyToken = async (token: string) : Promise<string | undefined> => {
+export const verifyToken = async (token: string): Promise<string | undefined> => {
     try {
         let decoded = await jwt.verify(token, SECRET_KEY);
         return decoded.username;
-      } catch(err) {
+    } catch (err) {
         // err
-      }
-    return ;
+    }
+    return;
 };

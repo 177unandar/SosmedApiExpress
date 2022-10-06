@@ -1,5 +1,5 @@
 import { Feed } from "../models/Feed";
-import { QueryBuilder } from "../utils/queryBuilder";
+import { QueryBuilder } from "../utils/QueryBuilder";
 
 
 export const createNewFeed = async (username: string, image_url: string, caption: string) => {
